@@ -3,12 +3,12 @@ import configparser
 
 # CONFIG
 config = configparser.ConfigParser()
-config.read('dwh.cfg')
+config.read("dwh.cfg")
 
-ARN             = config.get('IAM_ROLE', 'ARN')
-LOG_DATA        = config.get('S3', 'LOG_DATA')
-LOG_JSONPATH    = config.get('S3', 'LOG_JSONPATH')
-SONG_DATA       = config.get('S3', 'SONG_DATA')
+ARN = config.get("IAM_ROLE", "ARN")
+LOG_DATA = config.get("S3", "LOG_DATA")
+LOG_JSONPATH = config.get("S3", "LOG_JSONPATH")
+SONG_DATA = config.get("S3", "SONG_DATA")
 # SONGS_JSONPATH  = config.get('S3', 'SONGS_JSONPATH')
 
 # DROP TABLES
@@ -24,7 +24,7 @@ time_table_drop = "DROP TABLE IF EXISTS time"
 # CREATE TABLES
 
 # Staging tables
-staging_events_table_create= ("""
+staging_events_table_create = """
     CREATE TABLE IF NOT EXISTS staging_events (
                 event_id    BIGINT IDENTITY(0,1)    NULL,
                 artist      VARCHAR                 NULL,
@@ -46,9 +46,9 @@ staging_events_table_create= ("""
                 userAgent   VARCHAR                 NULL,
                 userId      INTEGER                 NULL
     );
-""")
+"""
 
-staging_songs_table_create = ("""
+staging_songs_table_create = """
     CREATE TABLE IF NOT EXISTS staging_songs (
                 num_songs           INTEGER         NULL,
                 artist_id           VARCHAR         NULL SORTKEY DISTKEY,
@@ -61,10 +61,10 @@ staging_songs_table_create = ("""
                 duration            DECIMAL(9)      NULL,
                 year                INTEGER         NULL
     );
-""")
+"""
 
 # Analytics tables
-songplay_table_create = ("""
+songplay_table_create = """
     CREATE TABLE IF NOT EXISTS songplays (
                 songplay_id INTEGER IDENTITY(0,1)   NOT NULL SORTKEY PRIMARY KEY,
                 start_time  TIMESTAMP               NOT NULL,
@@ -76,9 +76,9 @@ songplay_table_create = ("""
                 location    VARCHAR(100)            NULL,
                 user_agent  VARCHAR(255)            NULL
     );
-""")
+"""
 
-user_table_create = ("""
+user_table_create = """
     CREATE TABLE IF NOT EXISTS users (
                 user_id     INTEGER                 NOT NULL SORTKEY PRIMARY KEY,
                 first_name  VARCHAR(50)             NULL,
@@ -86,9 +86,9 @@ user_table_create = ("""
                 gender      VARCHAR(10)             NULL,
                 level       VARCHAR(10)             NULL
     ) diststyle all;
-""")
+"""
 
-song_table_create = ("""
+song_table_create = """
     CREATE TABLE IF NOT EXISTS songs (
                 song_id     VARCHAR(50)             NOT NULL SORTKEY PRIMARY KEY,
                 title       VARCHAR(500)            NOT NULL,
@@ -96,9 +96,9 @@ song_table_create = ("""
                 year        INTEGER                 NOT NULL,
                 duration    DECIMAL(9)              NOT NULL
     );
-""")
+"""
 
-artist_table_create = ("""
+artist_table_create = """
     CREATE TABLE IF NOT EXISTS artists (
                 artist_id   VARCHAR(50)             NOT NULL SORTKEY PRIMARY KEY,
                 name        VARCHAR(500)            NULL,
@@ -106,9 +106,9 @@ artist_table_create = ("""
                 latitude    DECIMAL(9)              NULL,
                 longitude   DECIMAL(9)              NULL
     ) diststyle all;
-""")
+"""
 
-time_table_create = ("""
+time_table_create = """
     CREATE TABLE IF NOT EXISTS time (
                 start_time  TIMESTAMP               NOT NULL SORTKEY PRIMARY KEY,
                 hour        SMALLINT                NULL,
@@ -118,30 +118,34 @@ time_table_create = ("""
                 year        SMALLINT                NULL,
                 weekday     SMALLINT                NULL
     ) diststyle all;
-""")
+"""
 
 # STAGING TABLES
 
-staging_events_copy = ("""
+staging_events_copy = (
+    """
     COPY staging_events FROM {}
     credentials 'aws_iam_role={}'
     format as json {}
     STATUPDATE ON
     region 'us-west-2';
-""").format(LOG_DATA, ARN, LOG_JSONPATH)
+"""
+).format(LOG_DATA, ARN, LOG_JSONPATH)
 
-staging_songs_copy = ("""
+staging_songs_copy = (
+    """
     COPY staging_songs FROM {}
     credentials 'aws_iam_role={}'
     format as json 'auto'
     ACCEPTINVCHARS AS '^'
     STATUPDATE ON
     region 'us-west-2';
-""").format(SONG_DATA, ARN)
+"""
+).format(SONG_DATA, ARN)
 
 # FINAL TABLES
 
-songplay_table_insert = ("""
+songplay_table_insert = """
     INSERT INTO songplays (             start_time,
                                         user_id,
                                         level,
@@ -167,9 +171,9 @@ songplay_table_insert = ("""
     se.song = ss.title         AND
     se.length = ss.duration
     ;
-""")
+"""
 
-user_table_insert = ("""
+user_table_insert = """
     INSERT INTO users (                 user_id,
                                         first_name,
                                         last_name,
@@ -182,9 +186,9 @@ user_table_insert = ("""
             se.level                    AS level
     FROM staging_events AS se
     WHERE se.page = 'NextSong';
-""")
+"""
 
-song_table_insert = ("""
+song_table_insert = """
     INSERT INTO songs (                 song_id,
                                         title,
                                         artist_id,
@@ -196,9 +200,9 @@ song_table_insert = ("""
             ss.year                     AS year,
             ss.duration                 AS duration
     FROM staging_songs AS ss;
-""")
+"""
 
-artist_table_insert = ("""
+artist_table_insert = """
     INSERT INTO artists (               artist_id,
                                         name,
                                         location,
@@ -210,9 +214,9 @@ artist_table_insert = ("""
             ss.artist_latitude          AS latitude,
             ss.artist_longitude         AS longitude
     FROM staging_songs AS ss;
-""")
+"""
 
-time_table_insert = ("""
+time_table_insert = """
     INSERT INTO time (                  start_time,
                                         hour,
                                         day,
@@ -228,11 +232,33 @@ time_table_insert = ("""
             EXTRACT(year FROM start_time)    AS year,
             EXTRACT(week FROM start_time)    AS weekday
     FROM    songplays                        AS sp;
-""")
+"""
 
 # QUERY LISTS
 
-create_table_queries = [staging_events_table_create, staging_songs_table_create, songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
-drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
+create_table_queries = [
+    staging_events_table_create,
+    staging_songs_table_create,
+    songplay_table_create,
+    user_table_create,
+    song_table_create,
+    artist_table_create,
+    time_table_create,
+]
+drop_table_queries = [
+    staging_events_table_drop,
+    staging_songs_table_drop,
+    songplay_table_drop,
+    user_table_drop,
+    song_table_drop,
+    artist_table_drop,
+    time_table_drop,
+]
 copy_table_queries = [staging_events_copy, staging_songs_copy]
-insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
+insert_table_queries = [
+    songplay_table_insert,
+    user_table_insert,
+    song_table_insert,
+    artist_table_insert,
+    time_table_insert,
+]

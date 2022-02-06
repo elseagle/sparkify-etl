@@ -19,15 +19,14 @@ def load_staging_tables(cur, conn):
     print("Start loading data from S3 to AWS Reshift tables...")
 
     for query in copy_table_queries:
-        print('------------------')
-        print('Processing query: {}'.format(query))
+        print("------------------")
+        print("Processing query: {}".format(query))
         cur.execute(query)
         conn.commit()
-        print('------------------')
-        print('{} processed OK.'.format(query))
+        print("------------------")
+        print("{} processed OK.".format(query))
 
-    print('All files COPIED OK.')
-
+    print("All files COPIED OK.")
 
 
 def insert_tables(cur, conn):
@@ -47,13 +46,14 @@ def insert_tables(cur, conn):
     """
     print("Start inserting data from staging tables into analysis tables...")
     for query in insert_table_queries:
-        print('------------------')
-        print('Processing query: {}'.format(query))
+        print("------------------")
+        print("Processing query: {}".format(query))
         cur.execute(query)
         conn.commit()
-        print('{} processed OK.'.format(query))
+        print("{} processed OK.".format(query))
 
-    print('All files INSERTED OK.')
+    print("All files INSERTED OK.")
+
 
 def main():
     """Connect to DB and call
@@ -68,11 +68,13 @@ def main():
     * All input data processed in DB tables.
     """
     config = configparser.ConfigParser()
-    config.read('dwh.cfg')
+    config.read("dwh.cfg")
 
-    conn = psycopg2.connect("host={} dbname={} user={} password={} port={}"
-                            .format(*config['CLUSTER']
-                            .values()))
+    conn = psycopg2.connect(
+        "host={} dbname={} user={} password={} port={}".format(
+            *config["CLUSTER"].values()
+        )
+    )
     cur = conn.cursor()
     print("AWS Redshift connection established OK.")
 

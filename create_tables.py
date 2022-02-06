@@ -23,6 +23,7 @@ def drop_tables(cur, conn):
 
     print("Tables dropped successfully.")
 
+
 def create_tables(cur, conn):
     """Create new tables (songplays, users, artists, songs, time)
         to sparkifydb.
@@ -43,6 +44,7 @@ def create_tables(cur, conn):
             print(e)
     print("Tables created successfully.")
 
+
 def main():
     """Connect to AWS Redshift, create new DB (sparkifydb),
         drop any existing tables, create new tables. Close DB connection.
@@ -62,9 +64,13 @@ def main():
         are created..
     """
     config = configparser.ConfigParser()
-    config.read('dwh.cfg')
+    config.read("dwh.cfg")
 
-    conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*config['CLUSTER'].values()))
+    conn = psycopg2.connect(
+        "host={} dbname={} user={} password={} port={}".format(
+            *config["CLUSTER"].values()
+        )
+    )
     cur = conn.cursor()
 
     drop_tables(cur, conn)
