@@ -1,0 +1,19 @@
+[CLUSTER]
+HOST='redshift-url'
+DB_NAME='redshift-user'
+DB_USER=
+DB_PASSWORD=
+DB_PORT=
+
+[IAM_ROLE]
+# role with s3 and redshift policies
+ARN= 
+
+[S3]
+LOG_DATA='s3://udacity-dend/log_data'
+LOG_JSONPATH='s3://udacity-dend/log_json_path.json'
+SONG_DATA='s3://udacity-dend/song_data/A/A'
+
+[AWS]
+KEY=
+SECRET=
